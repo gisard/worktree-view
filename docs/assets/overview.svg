@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="640" viewBox="0 0 1200 640" fill="none" role="img" aria-labelledby="title description">
+  <title id="title">Worktree View — features, repositories and changes in one view</title>
+  <desc id="description">Concept illustration. Two features contain API and web worktrees, with staged, unstaged and untracked files grouped underneath. This is not a screenshot.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="640" gradientUnits="userSpaceOnUse"><stop stop-color="#101C29"/><stop offset="1" stop-color="#0B121C"/></linearGradient>
+    <linearGradient id="accent" x1="52" y1="80" x2="400" y2="500" gradientUnits="userSpaceOnUse"><stop stop-color="#8DE8CE"/><stop offset="1" stop-color="#68ABDF"/></linearGradient>
+  </defs>
+  <rect width="1200" height="640" rx="24" fill="url(#bg)"/>
+  <path d="M560 0V640M0 574H1200" stroke="#223141"/>
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+    <g stroke="#8DE8CE" stroke-width="2.5"><path d="M64 63V95M64 77C64 94 88 77 88 95"/><circle cx="64" cy="58" r="5" fill="#101C29"/><circle cx="64" cy="100" r="5" fill="#101C29"/><circle cx="88" cy="100" r="5" fill="#101C29"/></g>
+    <text x="108" y="86" fill="#DCE8F2" font-size="18" font-weight="600" letter-spacing="2">WORKTREE VIEW</text>
+    <text x="54" y="222" fill="#F4F8FC" font-size="64" font-weight="650" letter-spacing="-2">Your features.</text>
+    <text x="54" y="298" fill="url(#accent)" font-size="64" font-weight="650" letter-spacing="-2">One view.</text>
+    <text x="58" y="357" fill="#A7B8CB" font-size="20">Review changes across Git worktrees</text>
+    <text x="58" y="387" fill="#A7B8CB" font-size="20">without leaving your workspace.</text>
+    <rect x="58" y="444" width="116" height="32" rx="16" fill="#19342F"/><text x="116" y="465" text-anchor="middle" fill="#A2E8D3" font-size="13">FEATURE FIRST</text>
+    <rect x="186" y="444" width="107" height="32" rx="16" fill="#1B2B3B"/><text x="239.5" y="465" text-anchor="middle" fill="#ADCBE5" font-size="13">READ ONLY</text>
+    <text x="58" y="612" fill="#8D9EAF" font-size="14">A focused VS Code extension for parallel development</text>
+    <rect x="600" y="48" width="552" height="490" rx="12" fill="#121C27" stroke="#314152"/>
+    <path d="M600 96H1152" stroke="#314152"/>
+    <circle cx="623" cy="72" r="4" fill="#536476"/><circle cx="639" cy="72" r="4" fill="#536476"/><circle cx="655" cy="72" r="4" fill="#536476"/>
+    <text x="682" y="78" fill="#C3D1DF" font-size="14" font-weight="600">WORKTREE VIEW</text>
+    <text x="1126" y="78" fill="#7F93A8" font-size="13" text-anchor="end">UNCOMMITTED CHANGES</text>
+    <rect x="614" y="112" width="524" height="36" rx="6" fill="#203630"/>
+    <path d="m630 125 5 5 5-5" stroke="#8DE8CE" stroke-width="1.5"/>
+    <text x="652" y="136" fill="#E5F7EF" font-size="16" font-weight="600">feature / login</text>
+    <text x="1120" y="135" fill="#9CC7B7" font-size="13" text-anchor="end">3 files</text>
+    <path d="M642 162V386M668 194V295M668 343V386" stroke="#344555"/>
+    <text x="658" y="177" fill="#DEEBF5" font-size="15" font-weight="600">api</text><text x="710" y="177" fill="#8499AE" font-size="13">feat/login</text>
+    <text x="686" y="207" fill="#B3C2D0" font-size="13">Staged</text>
+    <text x="708" y="236" fill="#D9E5EF" font-size="14">login.go</text><text x="805" y="236" fill="#7E93A8" font-size="12">internal/auth</text><text x="1120" y="236" fill="#E4BD7A" font-size="13">M</text>
+    <text x="686" y="266" fill="#B3C2D0" font-size="13">Unstaged</text>
+    <text x="708" y="295" fill="#D9E5EF" font-size="14">session.go</text><text x="805" y="295" fill="#7E93A8" font-size="12">internal/auth</text><text x="1120" y="295" fill="#E4BD7A" font-size="13">M</text>
+    <text x="658" y="328" fill="#DEEBF5" font-size="15" font-weight="600">web</text><text x="710" y="328" fill="#8499AE" font-size="13">feat/login</text>
+    <text x="686" y="357" fill="#B3C2D0" font-size="13">Untracked</text>
+    <text x="708" y="386" fill="#D9E5EF" font-size="14">Login.vue</text><text x="805" y="386" fill="#7E93A8" font-size="12">src/views</text><text x="1120" y="386" fill="#8DE8CE" font-size="13">U</text>
+    <path d="M618 407H1134" stroke="#283747"/>
+    <path d="m630 429 5 5 5-5" stroke="#9DB0C3" stroke-width="1.5"/>
+    <text x="652" y="440" fill="#D5E2EE" font-size="16" font-weight="600">fix / search</text><text x="1120" y="439" fill="#859BAD" font-size="13" text-anchor="end">1 file</text>
+    <text x="658" y="474" fill="#DEEBF5" font-size="15" font-weight="600">api</text><text x="710" y="474" fill="#8499AE" font-size="13">fix/search</text>
+    <text x="686" y="497" fill="#B3C2D0" font-size="13">Unstaged</text><text x="708" y="523" fill="#D9E5EF" font-size="14">search.go</text><text x="805" y="523" fill="#7E93A8" font-size="12">internal/search</text><text x="1120" y="523" fill="#E4BD7A" font-size="13">M</text>
+    <text x="1148" y="612" text-anchor="end" fill="#73889C" font-size="12" letter-spacing="1">CONCEPT ILLUSTRATION · NOT A SCREENSHOT</text>
+  </g>
+</svg>
