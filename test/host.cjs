@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const vscode = require('vscode');
+const { execFileSync } = require('node:child_process');
 
 exports.run = async function () {
   const before = vscode.workspace.workspaceFolders.map(folder => folder.uri.toString());
@@ -22,6 +23,7 @@ exports.run = async function () {
   assert.equal(single.repositories[0].name, 'api');
   const featureNode = { kind: 'feature', feature: single };
   const repositoryNode = review.getChildren(featureNode)[0];
+  assert.equal(review.getTreeItem(featureNode).collapsibleState, vscode.TreeItemCollapsibleState.Collapsed, '新功能默认折叠');
   assert.notEqual(review.getTreeItem(featureNode).id, review.getTreeItem(repositoryNode).id, '同路径父子节点 ID 必须唯一');
   await review.openDiff({ kind: 'file', repository: single.repositories[0], change: single.repositories[0].changes[0] });
   const singleDiff = vscode.window.tabGroups.activeTabGroup.activeTab.input;
@@ -68,8 +70,60 @@ exports.run = async function () {
   await vscode.commands.executeCommand('undo');
   assert.deepEqual(vscode.workspace.workspaceFolders.map(folder => folder.uri.toString()), before);
   assert.equal(review.getChildren()[0].kind, 'feature');
+  const bulkNode = { kind: 'feature', feature };
+  const repoNode = { kind: 'repository', repository };
+  const groupNode = { kind: 'group', repository, group: 'staged' };
+  await review.rememberExpansion(bulkNode, true);
+  await review.rememberExpansion(repoNode, false);
+  await review.rememberExpansion(groupNode, false);
+  let loadingUpdates = 0;
+  const treeListener = review.onDidChangeTreeData(() => {
+    if (!review.loading) return;
+    loadingUpdates++;
+    const current = review.getFeatures().find(f => f.name === 'demo-feature').repositories.find(r => r.name === 'api');
+    assert.ok(review.getChildren({ kind: 'repository', repository: current }).some(n => n.kind === 'group'), '刷新期间不能用加载占位符替换已有分组');
+  });
+  await vscode.commands.executeCommand('worktreeView.refresh');
+  treeListener.dispose();
+  assert.ok(loadingUpdates > 0);
+  const refreshedFeature = review.getFeatures().find(f => f.name === 'demo-feature');
+  const refreshedRepo = refreshedFeature.repositories.find(r => r.name === 'api');
+  assert.equal(review.getTreeItem({ kind: 'feature', feature: refreshedFeature }).collapsibleState, vscode.TreeItemCollapsibleState.Expanded);
+  assert.equal(review.getTreeItem({ kind: 'repository', repository: refreshedRepo }).collapsibleState, vscode.TreeItemCollapsibleState.Collapsed);
+  assert.equal(review.getTreeItem({ kind: 'group', repository: refreshedRepo, group: 'staged' }).collapsibleState, vscode.TreeItemCollapsibleState.Collapsed);
+  assert.equal(review.context.workspaceState.get('expansion')[refreshedRepo.directory], false, '折叠状态写入工作区存储');
+  // 关闭轮询及 Git 状态监听，直接验证文件系统事件驱动的 worktree 增删。
+  clearInterval(review.interval);
+  review.gitListeners.forEach(listener => listener.dispose());
+  const fixture = vscode.workspace.workspaceFolders[0].uri.fsPath;
+  const automatic = path.join(fixture, '.worktrees', 'automatic-refresh');
+  const source = path.join(fixture, 'api');
+  async function waitForFeature(present) {
+    const deadline = Date.now() + 10000;
+    while (review.getFeatures().some(feature => feature.name === 'automatic-refresh') !== present) {
+      assert.ok(Date.now() < deadline, 'worktree 增删应自动刷新，不依赖轮询或手动刷新');
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+  }
+  execFileSync('git', ['-C', source, 'worktree', 'add', '-qb', 'feat/automatic-refresh', automatic]);
+  await waitForFeature(true);
+  execFileSync('git', ['-C', source, 'worktree', 'remove', automatic]);
+  await waitForFeature(false);
   const report = { passed: true, features: features.map(f => ({ name: f.name, repos: f.repositories.map(r => r.name) })), singleLayoutDiff: true, workspaceUnchanged: true, stagedDiff: true, workingDiff: true, unsavedPreserved: true };
+  report.automaticWorktreeCreateDelete = true;
+  report.expansionPreserved = true;
   report.snapshots = savedSnapshots;
   await fs.writeFile(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, 'host-result.json'), JSON.stringify(report, null, 2));
   console.log('WORKTREE_VIEW_HOST_PASS', JSON.stringify(report));
+  const { WorktreeView } = require(path.join(extension.extensionPath, 'dist/extension'));
+  const savedContext = review.context;
+  review.dispose();
+  const restoredView = new WorktreeView(savedContext);
+  try {
+    await restoredView.initialize();
+    const restoredFeature = restoredView.getFeatures().find(f => f.name === 'demo-feature');
+    const restoredRepo = restoredFeature.repositories.find(r => r.name === 'api');
+    assert.equal(restoredView.getTreeItem({ kind: 'feature', feature: restoredFeature }).collapsibleState, vscode.TreeItemCollapsibleState.Expanded);
+    assert.equal(restoredView.getTreeItem({ kind: 'repository', repository: restoredRepo }).collapsibleState, vscode.TreeItemCollapsibleState.Collapsed);
+  } finally { restoredView.dispose(); }
 };

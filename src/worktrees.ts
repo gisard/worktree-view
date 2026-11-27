@@ -127,20 +127,35 @@ export interface ScanOptions {
   excluded: string[];
   assignments?: GroupAssignments;
   onDiscovered?: (features: Feature[]) => void;
+  onTopologyDiscovered?: (directories: string[]) => void;
 }
 
 export async function scanWorktrees(options: ScanOptions, git: Git, issues: RootIssue[] = []): Promise<Feature[]> {
   const seeds = new Set<string>();
   const roots = new Set(await Promise.all(options.roots.map(canonical)));
+  const watchDirectories = new Set([...options.folders, ...options.roots, ...options.roots.map(root => path.dirname(root))]);
   await workspaceSeeds(options.folders, seeds, issues);
   await collectRoots([...roots], seeds, issues);
-  for (const directory of options.knownRepositories ?? []) seeds.add(await canonical(directory));
+  for (const directory of options.knownRepositories ?? []) {
+    try {
+      // 内置 Git 的关闭事件可能晚到，不让已删除目录重新成为错误节点。
+      if (await isRepositorySeed(directory)) seeds.add(await canonical(directory));
+    } catch (error) { issues.push({ directory, message: message(error) }); }
+  }
   const commonDirectories = new Set<string>();
   const repositories = new Map<string, Repository>();
   for (const seed of seeds) {
     try {
       const common = await canonical(path.resolve(seed, (await git.run(seed, ['rev-parse', '--git-common-dir'])).toString().trim()));
       if (commonDirectories.has(common)) continue;
+      watchDirectories.add(common);
+      const registry = path.join(common, 'worktrees');
+      watchDirectories.add(registry);
+      try {
+        for (const entry of await readdir(registry, { withFileTypes: true })) {
+          if (entry.isDirectory()) watchDirectories.add(path.join(registry, entry.name));
+        }
+      } catch { /* 尚未创建 worktree 登记时监听 common 目录即可。 */ }
       const entries = parseWorktrees((await git.run(seed, ['worktree', 'list', '--porcelain', '-z'])).toString());
       commonDirectories.add(common);
       const name = path.basename(path.basename(common) === '.git' ? path.dirname(common) : entries[0]?.directory ?? common);
@@ -148,6 +163,7 @@ export async function scanWorktrees(options: ScanOptions, git: Git, issues: Root
         // Git 首条登记是主工作区（或 bare 仓库），只作为发现入口。
         if (entry === entries[0] || entry.bare) continue;
         const directory = await canonical(entry.directory);
+        watchDirectories.add(path.dirname(directory));
         let parent = path.dirname(directory);
         while (parent !== path.dirname(parent)) {
           if (path.basename(parent) === '.worktrees') { roots.add(parent); break; }
@@ -167,6 +183,7 @@ export async function scanWorktrees(options: ScanOptions, git: Git, issues: Root
   }
   const features = groupRepositories([...repositories.values()], [...roots], options.assignments)
     .filter(feature => !options.excluded.some(pattern => matchesPattern(feature.name, pattern)));
+  options.onTopologyDiscovered?.([...watchDirectories]);
   options.onDiscovered?.(features);
   await Promise.all(features.flatMap(feature => feature.repositories.map(async repository => {
     if (repository.error) return;

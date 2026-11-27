@@ -2,7 +2,7 @@
   "name": "worktree-view",
   "displayName": "worktree 视图",
   "description": "自动发现 Git worktree，按功能聚合多仓改动，在同一窗口查看 diff。",
-  "version": "0.2.3",
+  "version": "1.0.0",
   "publisher": "local-tools",
   "license": "MIT",
   "engines": {

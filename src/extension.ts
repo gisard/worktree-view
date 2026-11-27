@@ -6,6 +6,7 @@ import { Change, ChangeGroup, diffSides, Git, safeFile } from './git';
 import { Snapshots, snapshotScheme } from './snapshots';
 import { GroupAssignments, scanWorktrees, within } from './worktrees';
 import { ChangeDecorations, changeUri } from './decorations';
+import { TopologyWatcher } from './topology';
 
 type Node =
   | { kind: 'feature'; feature: Feature }
@@ -35,10 +36,12 @@ export class WorktreeView implements vscode.TreeDataProvider<Node>, vscode.Dispo
   private readonly changed = new vscode.EventEmitter<void>();
   readonly onDidChangeTreeData = this.changed.event;
   private readonly git = new Git();
+  private readonly topology = new TopologyWatcher(() => this.schedule());
   private readonly snapshots: Snapshots;
   private readonly disposables: vscode.Disposable[] = [];
   private readonly gitListeners = new Map<GitRepository, vscode.Disposable>();
   private readonly view: vscode.TreeView<Node>;
+  private readonly expansion: Record<string, boolean>;
   private features: Feature[] = [];
   private roots: string[] = [];
   private filter = '';
@@ -56,11 +59,14 @@ export class WorktreeView implements vscode.TreeDataProvider<Node>, vscode.Dispo
     this.snapshots = new Snapshots(this.git, context.storageUri ?? context.globalStorageUri);
     this.onlyChanged = context.workspaceState.get('onlyChanged', false);
     this.showIntegration = context.workspaceState.get('showIntegration', false);
+    this.expansion = { ...context.workspaceState.get<Record<string, boolean>>('expansion', {}) };
     this.view = vscode.window.createTreeView('worktreeView.changes', { treeDataProvider: this, showCollapseAll: true });
     this.disposables.push(this.view, this.changed, this.snapshots,
       vscode.window.registerFileDecorationProvider(new ChangeDecorations()),
       vscode.workspace.registerFileSystemProvider(snapshotScheme, this.snapshots, { isReadonly: true, isCaseSensitive: true }),
       this.view.onDidChangeVisibility(event => { if (event.visible) void this.refresh(); }),
+      this.view.onDidExpandElement(event => { void this.rememberExpansion(event.element, true); }),
+      this.view.onDidCollapseElement(event => { void this.rememberExpansion(event.element, false); }),
       vscode.workspace.onDidChangeWorkspaceFolders(() => this.schedule()),
       vscode.workspace.onDidChangeConfiguration(event => {
         if (event.affectsConfiguration('worktreeView')) { this.startInterval(); this.schedule(); }
@@ -124,7 +130,11 @@ export class WorktreeView implements vscode.TreeDataProvider<Node>, vscode.Dispo
         };
         api.repositories.forEach(listen);
         this.disposables.push(api.onDidOpenRepository(repository => { listen(repository); this.schedule(); }),
-          api.onDidCloseRepository(repository => { this.gitListeners.get(repository)?.dispose(); this.gitListeners.delete(repository); }));
+          api.onDidCloseRepository(repository => {
+            this.gitListeners.get(repository)?.dispose();
+            this.gitListeners.delete(repository);
+            this.schedule();
+          }));
       }
     } catch {
       // 内置 Git 被禁用或 API 不可用时，仍可通过只读 CLI 扫描。
@@ -178,8 +188,10 @@ export class WorktreeView implements vscode.TreeDataProvider<Node>, vscode.Dispo
         folders: root ? [] : folders, roots, excluded,
         knownRepositories: root ? [] : [...this.gitListeners.keys()].map(repository => repository.rootUri.fsPath),
         assignments: this.context.workspaceState.get<GroupAssignments>('groups', {}),
+        onTopologyDiscovered: directories => this.topology.update(directories),
         onDiscovered: discovered => {
-          if (this.disposed) return;
+          // 刷新期间保留已有子节点，避免加载占位符使树丢失展开状态。
+          if (this.disposed || this.features.length) return;
           this.roots = roots;
           this.features = discovered;
           this.updateView();
@@ -240,6 +252,20 @@ export class WorktreeView implements vscode.TreeDataProvider<Node>, vscode.Dispo
 
   getFeatures(): readonly Feature[] { return this.features; }
 
+  private nodeId(node: Node): string | undefined {
+    if (node.kind === 'feature') return `feature:${node.feature.directory}`;
+    if (node.kind === 'repository') return node.repository.directory;
+    if (node.kind === 'group') return `${node.repository.directory}/${node.group}`;
+    return undefined;
+  }
+
+  private async rememberExpansion(node: Node, expanded: boolean): Promise<void> {
+    const id = this.nodeId(node);
+    if (!id || this.disposed) return;
+    this.expansion[id] = expanded;
+    await this.context.workspaceState.update('expansion', { ...this.expansion });
+  }
+
   getChildren(node?: Node): Node[] {
     if (!node) {
       const nodes: Node[] = this.features.filter(feature => feature.name.toLocaleLowerCase().includes(this.filter.toLocaleLowerCase()))
@@ -265,7 +291,9 @@ export class WorktreeView implements vscode.TreeDataProvider<Node>, vscode.Dispo
   }
 
   getTreeItem(node: Node): vscode.TreeItem {
-    const expanded = vscode.TreeItemCollapsibleState.Expanded;
+    const id = this.nodeId(node);
+    const expanded = (id ? this.expansion[id] ?? node.kind !== 'feature' : false)
+      ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.Collapsed;
     if (node.kind === 'info') {
       const item = new vscode.TreeItem(node.label);
       item.iconPath = new vscode.ThemeIcon(node.error ? 'warning' : 'info');
@@ -274,7 +302,7 @@ export class WorktreeView implements vscode.TreeDataProvider<Node>, vscode.Dispo
     if (node.kind === 'feature') {
       const feature = node.feature;
       const item = new vscode.TreeItem(feature.name, expanded);
-      item.id = `feature:${feature.directory}`;
+      item.id = id;
       const count = feature.repositories.reduce((total, repository) => total + changedFileCount(repository), 0);
       const errors = feature.error || feature.repositories.some(repository => repository.error);
       item.description = feature.repositories.some(repository => repository.loading) ? '正在读取…' : `${count} 个修改${errors ? ' · 读取异常' : ''}`;
@@ -285,7 +313,7 @@ export class WorktreeView implements vscode.TreeDataProvider<Node>, vscode.Dispo
     const repository = node.repository;
     if (node.kind === 'repository') {
       const item = new vscode.TreeItem(repository.name, expanded);
-      item.id = repository.directory;
+      item.id = id;
       item.description = `${repository.branch || '未知分支'} · ${repository.loading ? '正在读取…' : repository.error ? '读取失败' : changedFileCount(repository) + ' 个修改'}`;
       item.contextValue = 'worktreeRepository';
       item.tooltip = `${repository.directory}\n${repository.error ?? repository.branch}${repository.note ? '\n' + repository.note : ''}`;
@@ -294,7 +322,7 @@ export class WorktreeView implements vscode.TreeDataProvider<Node>, vscode.Dispo
     }
     if (node.kind === 'group') {
       const item = new vscode.TreeItem(groupLabels[node.group], expanded);
-      item.id = `${repository.directory}/${node.group}`;
+      item.id = id;
       item.description = String(repository.changes.filter(change => change.group === node.group).length);
       item.iconPath = new vscode.ThemeIcon(node.group === 'conflict' ? 'warning' : 'files');
       return item;
@@ -347,6 +375,7 @@ export class WorktreeView implements vscode.TreeDataProvider<Node>, vscode.Dispo
     clearTimeout(this.debounce);
     clearInterval(this.interval);
     this.git.dispose();
+    this.topology.dispose();
     this.gitListeners.forEach(listener => listener.dispose());
     this.gitListeners.clear();
     this.disposables.forEach(disposable => disposable.dispose());
