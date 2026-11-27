@@ -1,5 +1,5 @@
 {
-  "name": "worktree-review",
+  "name": "worktree-view",
   "displayName": "worktree 视图",
   "description": "自动发现 Git worktree，按功能聚合多仓改动，在同一窗口查看 diff。",
   "version": "0.2.3",
@@ -48,7 +48,7 @@
     "views": {
       "scm": [
         {
-          "id": "worktreeReview.changes",
+          "id": "worktreeView.changes",
           "name": "worktree 视图",
           "visibility": "visible"
         }
@@ -56,63 +56,63 @@
     },
     "commands": [
       {
-        "command": "worktreeReview.openView",
+        "command": "worktreeView.openView",
         "title": "打开视图",
         "category": "worktree 视图",
         "icon": "$(git-branch)"
       },
       {
-        "command": "worktreeReview.refresh",
+        "command": "worktreeView.refresh",
         "title": "刷新功能改动",
         "category": "worktree 视图",
         "icon": "$(refresh)"
       },
       {
-        "command": "worktreeReview.chooseRoot",
+        "command": "worktreeView.chooseRoot",
         "title": "选择 Worktree 父目录",
         "category": "worktree 视图",
         "icon": "$(folder-opened)"
       },
       {
-        "command": "worktreeReview.autoRoot",
+        "command": "worktreeView.autoRoot",
         "title": "恢复自动发现目录",
         "category": "worktree 视图"
       },
       {
-        "command": "worktreeReview.filter",
+        "command": "worktreeView.filter",
         "title": "筛选功能名称",
         "category": "worktree 视图",
         "icon": "$(search)"
       },
       {
-        "command": "worktreeReview.onlyChanged",
+        "command": "worktreeView.onlyChanged",
         "title": "切换：只看有改动的功能",
         "category": "worktree 视图",
         "icon": "$(filter)"
       },
       {
-        "command": "worktreeReview.showIntegration",
+        "command": "worktreeView.showIntegration",
         "title": "切换：显示排除项",
         "category": "worktree 视图"
       },
       {
-        "command": "worktreeReview.openDiff",
+        "command": "worktreeView.openDiff",
         "title": "查看改动",
         "category": "worktree 视图"
       },
       {
-        "command": "worktreeReview.openFile",
+        "command": "worktreeView.openFile",
         "title": "打开工作区文件",
         "category": "worktree 视图",
         "icon": "$(go-to-file)"
       },
       {
-        "command": "worktreeReview.assignGroup",
+        "command": "worktreeView.assignGroup",
         "title": "归入自定义功能组",
         "category": "worktree 视图"
       },
       {
-        "command": "worktreeReview.resetGroup",
+        "command": "worktreeView.resetGroup",
         "title": "恢复自动分组",
         "category": "worktree 视图"
       }
@@ -120,64 +120,64 @@
     "menus": {
       "view/title": [
         {
-          "command": "worktreeReview.refresh",
-          "when": "view == worktreeReview.changes",
+          "command": "worktreeView.refresh",
+          "when": "view == worktreeView.changes",
           "group": "navigation@1"
         },
         {
-          "command": "worktreeReview.filter",
-          "when": "view == worktreeReview.changes",
+          "command": "worktreeView.filter",
+          "when": "view == worktreeView.changes",
           "group": "navigation@2"
         },
         {
-          "command": "worktreeReview.onlyChanged",
-          "when": "view == worktreeReview.changes",
+          "command": "worktreeView.onlyChanged",
+          "when": "view == worktreeView.changes",
           "group": "navigation@3"
         },
         {
-          "command": "worktreeReview.chooseRoot",
-          "when": "view == worktreeReview.changes",
+          "command": "worktreeView.chooseRoot",
+          "when": "view == worktreeView.changes",
           "group": "settings@1"
         },
         {
-          "command": "worktreeReview.autoRoot",
-          "when": "view == worktreeReview.changes",
+          "command": "worktreeView.autoRoot",
+          "when": "view == worktreeView.changes",
           "group": "settings@2"
         },
         {
-          "command": "worktreeReview.showIntegration",
-          "when": "view == worktreeReview.changes",
+          "command": "worktreeView.showIntegration",
+          "when": "view == worktreeView.changes",
           "group": "settings@3"
         },
         {
-          "command": "worktreeReview.assignGroup",
-          "when": "view == worktreeReview.changes",
+          "command": "worktreeView.assignGroup",
+          "when": "view == worktreeView.changes",
           "group": "settings@4"
         }
       ],
       "view/item/context": [
         {
-          "command": "worktreeReview.openFile",
-          "when": "view == worktreeReview.changes && viewItem == changeFile",
+          "command": "worktreeView.openFile",
+          "when": "view == worktreeView.changes && viewItem == changeFile",
           "group": "inline"
         },
         {
-          "command": "worktreeReview.resetGroup",
-          "when": "view == worktreeReview.changes && viewItem == worktreeRepository",
+          "command": "worktreeView.resetGroup",
+          "when": "view == worktreeView.changes && viewItem == worktreeRepository",
           "group": "grouping"
         }
       ],
       "commandPalette": [
         {
-          "command": "worktreeReview.openDiff",
+          "command": "worktreeView.openDiff",
           "when": "false"
         },
         {
-          "command": "worktreeReview.openFile",
+          "command": "worktreeView.openFile",
           "when": "false"
         },
         {
-          "command": "worktreeReview.resetGroup",
+          "command": "worktreeView.resetGroup",
           "when": "false"
         }
       ]
@@ -185,13 +185,13 @@
     "configuration": {
       "title": "worktree 视图",
       "properties": {
-        "worktreeReview.root": {
+        "worktreeView.root": {
           "type": "string",
           "default": "",
           "scope": "window",
           "description": "可选：worktree 父目录，支持绝对路径或相对工作区路径。留空从工作区仓库及 .worktrees 自动发现；指定后以该目录为发现入口，仍包含关联仓库的其他 worktree。"
         },
-        "worktreeReview.excludedFeatures": {
+        "worktreeView.excludedFeatures": {
           "type": "array",
           "items": {
             "type": "string"
@@ -199,7 +199,7 @@
           "default": [],
           "description": "隐藏的功能目录名称，支持 * 和 ?；在视图菜单中可以临时显示。"
         },
-        "worktreeReview.refreshInterval": {
+        "worktreeView.refreshInterval": {
           "type": "number",
           "default": 15,
           "minimum": 5,
@@ -216,10 +216,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/gisard/worktree-review.git"
+    "url": "https://github.com/gisard/worktree-view.git"
   },
-  "homepage": "https://github.com/gisard/worktree-review#readme",
+  "homepage": "https://github.com/gisard/worktree-view#readme",
   "bugs": {
-    "url": "https://github.com/gisard/worktree-review/issues"
+    "url": "https://github.com/gisard/worktree-view/issues"
   }
 }

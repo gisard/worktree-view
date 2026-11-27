@@ -1,6 +1,6 @@
 # GitHub 发布检查
 
-仓库地址为 https://github.com/gisard/worktree-review，package.json 已填写对应 repository、bugs 和 homepage。`local-tools` 仅为当前扩展标识的一部分，不代表已注册的 Marketplace 发布者。
+仓库地址为 https://github.com/gisard/worktree-view，package.json 已填写对应 repository、bugs 和 homepage。`local-tools` 仅为当前扩展标识的一部分，不代表已注册的 Marketplace 发布者。
 
 ## 首次公开
 

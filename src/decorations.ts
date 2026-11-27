@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { Change, safeFile } from './git';
 
-const scheme = 'worktree-review-change';
+const scheme = 'worktree-view-change';
 const styles: Record<string, [string, string]> = {
   M: ['已修改', 'modifiedResourceForeground'],
   A: ['已新增', 'addedResourceForeground'],

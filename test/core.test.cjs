@@ -18,7 +18,7 @@ function git(cwd, ...args) {
   return execFileSync('git', ['-C', cwd, ...args], { encoding: 'utf8', env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' } });
 }
 async function fixture(t) {
-  const root = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'worktree-review-test-')));
+  const root = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'worktree-view-test-')));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const source = path.join(root, 'source');
   await fs.mkdir(source);

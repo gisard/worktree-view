@@ -5,11 +5,11 @@ const vscode = require('vscode');
 
 exports.run = async function () {
   const before = vscode.workspace.workspaceFolders.map(folder => folder.uri.toString());
-  const extension = vscode.extensions.getExtension('local-tools.worktree-review');
+  const extension = vscode.extensions.getExtension('local-tools.worktree-view');
   assert.ok(extension);
   const review = await extension.activate();
-  assert.ok(extension.packageJSON.contributes.commands.some(command => command.command === 'worktreeReview.openView'));
-  await vscode.commands.executeCommand('worktreeReview.openView');
+  assert.ok(extension.packageJSON.contributes.commands.some(command => command.command === 'worktreeView.openView'));
+  await vscode.commands.executeCommand('worktreeView.openView');
   await review.refresh();
   const features = review.getFeatures();
   assert.deepEqual(features.map(feature => feature.name).sort(), ['demo-feature', 'single-feature'], '只展示关联 worktree，不混入主工作区');
@@ -71,5 +71,5 @@ exports.run = async function () {
   const report = { passed: true, features: features.map(f => ({ name: f.name, repos: f.repositories.map(r => r.name) })), singleLayoutDiff: true, workspaceUnchanged: true, stagedDiff: true, workingDiff: true, unsavedPreserved: true };
   report.snapshots = savedSnapshots;
   await fs.writeFile(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, 'host-result.json'), JSON.stringify(report, null, 2));
-  console.log('WORKTREE_REVIEW_HOST_PASS', JSON.stringify(report));
+  console.log('WORKTREE_VIEW_HOST_PASS', JSON.stringify(report));
 };

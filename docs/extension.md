@@ -25,13 +25,13 @@
 
 ```json
 {
-  "worktreeReview.root": "",
-  "worktreeReview.excludedFeatures": [],
-  "worktreeReview.refreshInterval": 15
+  "worktreeView.root": "",
+  "worktreeView.excludedFeatures": [],
+  "worktreeView.refreshInterval": 15
 }
 ```
 
-扩展 ID 为 `local-tools.worktree-review`，目前尚未上架 Marketplace。多 Profile 或远程环境请在目标窗口安装本扩展。[GitHub 源码与完整文档](https://github.com/gisard/worktree-review)中的 README、CONTRIBUTING、SECURITY 与 CHANGELOG 提供更多说明。
+扩展 ID 为 `local-tools.worktree-view`，目前尚未上架 Marketplace。多 Profile 或远程环境请在目标窗口安装本扩展。[GitHub 源码与完整文档](https://github.com/gisard/worktree-view)中的 README、CONTRIBUTING、SECURITY 与 CHANGELOG 提供更多说明。
 
 ## English summary
 

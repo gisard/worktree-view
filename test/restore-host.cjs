@@ -7,7 +7,7 @@ const { execFileSync } = require('node:child_process');
 exports.run = async function () {
   const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
   const report = JSON.parse(await fs.readFile(path.join(root, 'host-result.json'), 'utf8'));
-  const extension = vscode.extensions.getExtension('local-tools.worktree-review');
+  const extension = vscode.extensions.getExtension('local-tools.worktree-view');
   assert.equal(extension.packageJSON.displayName, 'worktree 视图');
   assert.equal(extension.packageJSON.contributes.views.scm[0].name, 'worktree 视图');
   const review = await extension.activate();
@@ -16,7 +16,7 @@ exports.run = async function () {
   await review.context.workspaceState.update('groups', Object.fromEntries(selected.map(repository => [repository.directory, '自定义测试组'])));
   await review.refresh();
   assert.equal(review.getFeatures().find(feature => feature.name === '自定义测试组').repositories.length, 2);
-  await vscode.commands.executeCommand('worktreeReview.resetGroup', { kind: 'repository', repository: selected[0] });
+  await vscode.commands.executeCommand('worktreeView.resetGroup', { kind: 'repository', repository: selected[0] });
   assert.equal(review.getFeatures().find(feature => feature.name === '自定义测试组').repositories.length, 1);
   await review.context.workspaceState.update('groups', undefined);
   await review.refresh();

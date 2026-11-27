@@ -31,7 +31,7 @@ interface GitAPI {
 }
 interface GitExtension { getAPI(version: 1): GitAPI }
 
-export class WorktreeReview implements vscode.TreeDataProvider<Node>, vscode.Disposable {
+export class WorktreeView implements vscode.TreeDataProvider<Node>, vscode.Disposable {
   private readonly changed = new vscode.EventEmitter<void>();
   readonly onDidChangeTreeData = this.changed.event;
   private readonly git = new Git();
@@ -56,27 +56,27 @@ export class WorktreeReview implements vscode.TreeDataProvider<Node>, vscode.Dis
     this.snapshots = new Snapshots(this.git, context.storageUri ?? context.globalStorageUri);
     this.onlyChanged = context.workspaceState.get('onlyChanged', false);
     this.showIntegration = context.workspaceState.get('showIntegration', false);
-    this.view = vscode.window.createTreeView('worktreeReview.changes', { treeDataProvider: this, showCollapseAll: true });
+    this.view = vscode.window.createTreeView('worktreeView.changes', { treeDataProvider: this, showCollapseAll: true });
     this.disposables.push(this.view, this.changed, this.snapshots,
       vscode.window.registerFileDecorationProvider(new ChangeDecorations()),
       vscode.workspace.registerFileSystemProvider(snapshotScheme, this.snapshots, { isReadonly: true, isCaseSensitive: true }),
       this.view.onDidChangeVisibility(event => { if (event.visible) void this.refresh(); }),
       vscode.workspace.onDidChangeWorkspaceFolders(() => this.schedule()),
       vscode.workspace.onDidChangeConfiguration(event => {
-        if (event.affectsConfiguration('worktreeReview')) { this.startInterval(); this.schedule(); }
+        if (event.affectsConfiguration('worktreeView')) { this.startInterval(); this.schedule(); }
       }),
       vscode.workspace.onDidSaveTextDocument(document => {
         if (this.contains(document.uri.fsPath)) this.schedule();
       }),
     );
-    this.command('openView', () => vscode.commands.executeCommand('worktreeReview.changes.focus'));
+    this.command('openView', () => vscode.commands.executeCommand('worktreeView.changes.focus'));
     this.command('refresh', () => this.refresh());
     this.command('chooseRoot', () => this.chooseRoot());
     this.command('autoRoot', async () => {
       await context.workspaceState.update('root', undefined);
       await this.refresh();
-      if (vscode.workspace.getConfiguration('worktreeReview').get<string>('root')) {
-        void vscode.window.showInformationMessage('目录设置 worktreeReview.root 仍然生效；清空该设置即可自动发现。');
+      if (vscode.workspace.getConfiguration('worktreeView').get<string>('root')) {
+        void vscode.window.showInformationMessage('目录设置 worktreeView.root 仍然生效；清空该设置即可自动发现。');
       }
     });
     this.command('filter', async () => {
@@ -103,7 +103,7 @@ export class WorktreeReview implements vscode.TreeDataProvider<Node>, vscode.Dis
   }
 
   private command(name: string, action: (node?: Node) => unknown): void {
-    this.disposables.push(vscode.commands.registerCommand(`worktreeReview.${name}`, async (node?: Node) => {
+    this.disposables.push(vscode.commands.registerCommand(`worktreeView.${name}`, async (node?: Node) => {
       try { return await action(node); }
       catch (error) { void vscode.window.showErrorMessage(`worktree 视图：${error instanceof Error ? error.message : String(error)}`); }
     }));
@@ -133,7 +133,7 @@ export class WorktreeReview implements vscode.TreeDataProvider<Node>, vscode.Dis
     if (!this.disposed && this.context.extensionMode === vscode.ExtensionMode.Production && !this.context.globalState.get('welcomeShown')) {
       await this.context.globalState.update('welcomeShown', true);
       void vscode.window.showInformationMessage('worktree 视图已就绪，打开项目后会自动发现关联工作树。', '打开视图').then(choice => {
-        if (choice && !this.disposed) void vscode.commands.executeCommand('worktreeReview.changes.focus');
+        if (choice && !this.disposed) void vscode.commands.executeCommand('worktreeView.changes.focus');
       });
     }
   }
@@ -144,7 +144,7 @@ export class WorktreeReview implements vscode.TreeDataProvider<Node>, vscode.Dis
 
   private startInterval(): void {
     clearInterval(this.interval);
-    const seconds = vscode.workspace.getConfiguration('worktreeReview').get<number>('refreshInterval', 15);
+    const seconds = vscode.workspace.getConfiguration('worktreeView').get<number>('refreshInterval', 15);
     this.interval = setInterval(() => { if (this.view.visible) void this.refresh(); }, Math.max(5, Math.min(300, seconds)) * 1000);
   }
 
@@ -168,7 +168,7 @@ export class WorktreeReview implements vscode.TreeDataProvider<Node>, vscode.Dis
     this.loading = true;
     this.updateView();
     try {
-      const config = vscode.workspace.getConfiguration('worktreeReview');
+      const config = vscode.workspace.getConfiguration('worktreeView');
       const root = this.context.workspaceState.get<string>('root') || config.get<string>('root');
       const folders = (vscode.workspace.workspaceFolders ?? []).filter(folder => folder.uri.scheme === 'file').map(folder => folder.uri.fsPath);
       const issues: RootIssue[] = [];
@@ -308,7 +308,7 @@ export class WorktreeReview implements vscode.TreeDataProvider<Node>, vscode.Dis
     item.contextValue = 'changeFile';
     item.resourceUri = changeUri(repository.directory, change);
     item.iconPath = vscode.ThemeIcon.File;
-    item.command = { command: 'worktreeReview.openDiff', title: '查看改动', arguments: [node] };
+    item.command = { command: 'worktreeView.openDiff', title: '查看改动', arguments: [node] };
     return item;
   }
 
@@ -353,8 +353,8 @@ export class WorktreeReview implements vscode.TreeDataProvider<Node>, vscode.Dis
   }
 }
 
-export async function activate(context: vscode.ExtensionContext): Promise<WorktreeReview> {
-  const review = new WorktreeReview(context);
+export async function activate(context: vscode.ExtensionContext): Promise<WorktreeView> {
+  const review = new WorktreeView(context);
   context.subscriptions.push(review);
   await review.initialize();
   return review;

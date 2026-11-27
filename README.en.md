@@ -54,7 +54,9 @@ Extract an installation ZIP and use the appropriate entry point:
 | Linux | Run `sh install.sh` | Not yet platform-tested |
 | Desktop VS Code | Extensions → **Install from VSIX** | Choose the intended profile or remote window |
 
-**Installation assets: [GitHub Releases](https://github.com/gisard/worktree-review/releases).**
+**Installation assets: [GitHub Releases](https://github.com/gisard/worktree-view/releases).**
+
+When migrating from the extension’s previous name, uninstall the old extension before installing `local-tools.worktree-view`. Rename your configuration keys to `worktreeView.*` and configure custom groups, filters, and manually selected directories again. Close old diff tabs and reopen them.
 
 ### 2. Open the view
 
@@ -104,9 +106,9 @@ npm test
 npm run bundle
 ```
 
-Installation bundles are written to `release/`. Press F5 to launch an extension development window. See [CONTRIBUTING](CONTRIBUTING.md) for validation requirements and [Actions](https://github.com/gisard/worktree-review/actions) for actual CI results.
+Installation bundles are written to `release/`. Press F5 to launch an extension development window. See [CONTRIBUTING](CONTRIBUTING.md) for validation requirements and [Actions](https://github.com/gisard/worktree-view/actions) for actual CI results.
 
-Share reproducible issues and use cases in [Issues](https://github.com/gisard/worktree-review/issues). Source reuse is covered by the [MIT License](LICENSE); internal modules are not a stable public npm API.
+Share reproducible issues and use cases in [Issues](https://github.com/gisard/worktree-view/issues). Source reuse is covered by the [MIT License](LICENSE); internal modules are not a stable public npm API.
 
 ---
 

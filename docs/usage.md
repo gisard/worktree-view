@@ -6,9 +6,9 @@
 
 ## 选择目录与安装兼容
 
-在视图菜单选择 **选择 Worktree 父目录**，可指定 `.worktrees` 等专用目录。选择结果只保存在当前工作区插件状态中，不替换工作区文件夹。显式选择后，该目录替代默认发现入口，但 Git 登记中关联的外部 worktree 仍会显示。使用 **恢复自动发现目录** 清除选择；如设置中也配置了 `worktreeReview.root`，需同时清空。
+在视图菜单选择 **选择 Worktree 父目录**，可指定 `.worktrees` 等专用目录。选择结果只保存在当前工作区插件状态中，不替换工作区文件夹。显式选择后，该目录替代默认发现入口，但 Git 登记中关联的外部 worktree 仍会显示。使用 **恢复自动发现目录** 清除选择；如设置中也配置了 `worktreeView.root`，需同时清空。
 
-扩展 ID 保持 `local-tools.worktree-review`，配置前缀继续使用 `worktreeReview`，以兼容已安装版本。安装器只调用标准 VS Code CLI，不修改项目或工作区设置。多 Profile 或远程开发需要在目标窗口安装；脚本不会自动选择远程环境。
+扩展 ID 为 `local-tools.worktree-view`，配置前缀为 `worktreeView`。从更名前的旧版迁移时，请先卸载旧扩展，再安装新版；将旧配置项改为 `worktreeView.*`，自定义分组、筛选及手动选择目录需要重新设置。旧版 diff 标签页请关闭后重新打开。安装器只调用标准 VS Code CLI，不修改项目或工作区设置。多 Profile 或远程开发需要在目标窗口安装；脚本不会自动选择远程环境。
 
 ## 功能与边界
 
@@ -41,16 +41,16 @@
 - 放大镜：按功能名称筛选；输入留空恢复全部。
 - 漏斗：切换只看有改动的功能；异常功能始终保留，避免隐藏错误。
 - `…` → **切换：显示排除项**：显示或隐藏设置中排除的目录。
-- 默认不排除任何功能。需要隐藏 `_archives`、`*-dev`、`*-test` 时，通过 `worktreeReview.excludedFeatures` 设置；已有显式配置继续生效。规则匹配展示的功能组名称，不直接匹配分支。
-- `…` → **恢复自动发现目录**：清除此前通过选择器指定的父目录。如果配置文件显式设置了 `worktreeReview.root`，还需清空该设置。
+- 默认不排除任何功能。需要隐藏 `_archives`、`*-dev`、`*-test` 时，通过 `worktreeView.excludedFeatures` 设置；已有显式配置继续生效。规则匹配展示的功能组名称，不直接匹配分支。
+- `…` → **恢复自动发现目录**：清除此前通过选择器指定的父目录。如果配置文件显式设置了 `worktreeView.root`，还需清空该设置。
 
 可选设置（不配置也可直接使用）：
 
 ```json
 {
-  "worktreeReview.root": "",
-  "worktreeReview.excludedFeatures": [],
-  "worktreeReview.refreshInterval": 15
+  "worktreeView.root": "",
+  "worktreeView.excludedFeatures": [],
+  "worktreeView.refreshInterval": 15
 }
 ```
 
@@ -73,8 +73,8 @@ npm run bundle
 
 ```sh
 code --new-window \
-  --user-data-dir /tmp/worktree-review-test-user \
-  --extensions-dir /tmp/worktree-review-test-extensions \
+  --user-data-dir /tmp/worktree-view-test-user \
+  --extensions-dir /tmp/worktree-view-test-extensions \
   --disable-extensions --disable-workspace-trust \
   --extensionDevelopmentPath="$PWD" \
   --extensionTestsPath="$PWD/test/host.cjs" \

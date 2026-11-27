@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 const { execFileSync } = require('node:child_process');
-const root = fs.mkdtempSync(path.join(os.tmpdir(), 'worktree-review-host-'));
+const root = fs.mkdtempSync(path.join(os.tmpdir(), 'worktree-view-host-'));
 function git(cwd, ...args) { return execFileSync('git', ['-C', cwd, ...args], { stdio: 'pipe', env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' } }); }
 for (const name of ['api', 'admin']) {
   const source = path.join(root, name);

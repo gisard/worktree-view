@@ -54,7 +54,9 @@ Worktree View 把同一功能下的 worktree 放在一起。展开功能，看�
 | Linux | 执行 `sh install.sh` | 尚未真机验证 |
 | 通用方式 | VS Code → Extensions → **从 VSIX 安装** | 多 Profile、远程窗口请选择目标环境 |
 
-**安装包入口：[GitHub Releases](https://github.com/gisard/worktree-review/releases)。**
+**安装包入口：[GitHub Releases](https://github.com/gisard/worktree-view/releases)。**
+
+从更名前的旧版迁移时，请先卸载旧扩展，再安装 `local-tools.worktree-view`；将旧配置项改为 `worktreeView.*`，并重新设置自定义分组、筛选和手动选择的目录。旧版 diff 标签页请关闭后重新打开。
 
 ### 2. 打开视图
 
@@ -106,9 +108,9 @@ npm test
 npm run bundle
 ```
 
-安装产物位于 `release/`，按 F5 可启动扩展开发窗口。贡献流程与验证要求见 [CONTRIBUTING](CONTRIBUTING.md)，实际 CI 结果见 [Actions](https://github.com/gisard/worktree-review/actions)。
+安装产物位于 `release/`，按 F5 可启动扩展开发窗口。贡献流程与验证要求见 [CONTRIBUTING](CONTRIBUTING.md)，实际 CI 结果见 [Actions](https://github.com/gisard/worktree-view/actions)。
 
-欢迎通过 [Issues](https://github.com/gisard/worktree-review/issues) 提交可复现的问题或使用场景。复用源码时保留 [MIT License](LICENSE) 要求的声明；当前未提供稳定的 npm API。
+欢迎通过 [Issues](https://github.com/gisard/worktree-view/issues) 提交可复现的问题或使用场景。复用源码时保留 [MIT License](LICENSE) 要求的声明；当前未提供稳定的 npm API。
 
 ---
 

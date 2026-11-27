@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import path from 'node:path';
 import { Git, Side, safeFile } from './git';
 
-const SCHEME = 'worktree-review';
+const SCHEME = 'worktree-view';
 interface Snapshot { repository: string; oid?: string }
 
 export class Snapshots implements vscode.FileSystemProvider {
