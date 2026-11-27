@@ -54,7 +54,7 @@ Extract an installation ZIP and use the appropriate entry point:
 | Linux | Run `sh install.sh` | Not yet platform-tested |
 | Desktop VS Code | Extensions → **Install from VSIX** | Choose the intended profile or remote window |
 
-**Installation assets: [GitHub Releases](https://github.com/gisard/worktree-review/releases).** Only the source has been pushed so far; no formal Release or Marketplace listing is published. If no assets are available, build from source using the commands below. GitHub's **Download ZIP contains source**, not an installable extension.
+**Installation assets: [GitHub Releases](https://github.com/gisard/worktree-review/releases).**
 
 ### 2. Open the view
 

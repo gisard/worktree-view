@@ -54,7 +54,7 @@ Worktree View 把同一功能下的 worktree 放在一起。展开功能，看�
 | Linux | 执行 `sh install.sh` | 尚未真机验证 |
 | 通用方式 | VS Code → Extensions → **从 VSIX 安装** | 多 Profile、远程窗口请选择目标环境 |
 
-**安装包入口：[GitHub Releases](https://github.com/gisard/worktree-review/releases)。** 当前仅完成源码推送，尚未发布正式 Release 或上架 Marketplace。若暂无安装资产，可按下方开发命令自行构建。GitHub 的 **Download ZIP 是源码包**，不能直接安装。
+**安装包入口：[GitHub Releases](https://github.com/gisard/worktree-review/releases)。**
 
 ### 2. 打开视图
 
