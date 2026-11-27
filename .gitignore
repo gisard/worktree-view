@@ -1,0 +1,11 @@
+node_modules/
+dist/
+*.vsix
+.DS_Store
+.test-output/
+release/
+
+.env
+.env.*
+*.pem
+*.key

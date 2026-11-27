@@ -1,0 +1,225 @@
+{
+  "name": "worktree-review",
+  "displayName": "worktree 视图",
+  "description": "自动发现 Git worktree，按功能聚合多仓改动，在同一窗口查看 diff。",
+  "version": "0.2.3",
+  "publisher": "local-tools",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "SCM Providers"
+  ],
+  "keywords": [
+    "worktree",
+    "review",
+    "multi-repository"
+  ],
+  "main": "./dist/extension.js",
+  "extensionKind": [
+    "workspace"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false
+    },
+    "virtualWorkspaces": {
+      "supported": false
+    }
+  },
+  "scripts": {
+    "build": "tsc -p .",
+    "check": "tsc -p . --noEmit",
+    "test": "npm run build && node --test test/*.test.cjs",
+    "package": "npm run build && vsce package --no-dependencies --allow-missing-repository --readme-path docs/extension.md",
+    "bundle": "npm run package && node scripts/bundle.cjs"
+  },
+  "devDependencies": {
+    "@types/node": "20.19.39",
+    "@types/vscode": "1.96.0",
+    "@vscode/vsce": "4.1.1",
+    "typescript": "5.9.3"
+  },
+  "contributes": {
+    "views": {
+      "scm": [
+        {
+          "id": "worktreeReview.changes",
+          "name": "worktree 视图",
+          "visibility": "visible"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "worktreeReview.openView",
+        "title": "打开视图",
+        "category": "worktree 视图",
+        "icon": "$(git-branch)"
+      },
+      {
+        "command": "worktreeReview.refresh",
+        "title": "刷新功能改动",
+        "category": "worktree 视图",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "worktreeReview.chooseRoot",
+        "title": "选择 Worktree 父目录",
+        "category": "worktree 视图",
+        "icon": "$(folder-opened)"
+      },
+      {
+        "command": "worktreeReview.autoRoot",
+        "title": "恢复自动发现目录",
+        "category": "worktree 视图"
+      },
+      {
+        "command": "worktreeReview.filter",
+        "title": "筛选功能名称",
+        "category": "worktree 视图",
+        "icon": "$(search)"
+      },
+      {
+        "command": "worktreeReview.onlyChanged",
+        "title": "切换：只看有改动的功能",
+        "category": "worktree 视图",
+        "icon": "$(filter)"
+      },
+      {
+        "command": "worktreeReview.showIntegration",
+        "title": "切换：显示排除项",
+        "category": "worktree 视图"
+      },
+      {
+        "command": "worktreeReview.openDiff",
+        "title": "查看改动",
+        "category": "worktree 视图"
+      },
+      {
+        "command": "worktreeReview.openFile",
+        "title": "打开工作区文件",
+        "category": "worktree 视图",
+        "icon": "$(go-to-file)"
+      },
+      {
+        "command": "worktreeReview.assignGroup",
+        "title": "归入自定义功能组",
+        "category": "worktree 视图"
+      },
+      {
+        "command": "worktreeReview.resetGroup",
+        "title": "恢复自动分组",
+        "category": "worktree 视图"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "worktreeReview.refresh",
+          "when": "view == worktreeReview.changes",
+          "group": "navigation@1"
+        },
+        {
+          "command": "worktreeReview.filter",
+          "when": "view == worktreeReview.changes",
+          "group": "navigation@2"
+        },
+        {
+          "command": "worktreeReview.onlyChanged",
+          "when": "view == worktreeReview.changes",
+          "group": "navigation@3"
+        },
+        {
+          "command": "worktreeReview.chooseRoot",
+          "when": "view == worktreeReview.changes",
+          "group": "settings@1"
+        },
+        {
+          "command": "worktreeReview.autoRoot",
+          "when": "view == worktreeReview.changes",
+          "group": "settings@2"
+        },
+        {
+          "command": "worktreeReview.showIntegration",
+          "when": "view == worktreeReview.changes",
+          "group": "settings@3"
+        },
+        {
+          "command": "worktreeReview.assignGroup",
+          "when": "view == worktreeReview.changes",
+          "group": "settings@4"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "worktreeReview.openFile",
+          "when": "view == worktreeReview.changes && viewItem == changeFile",
+          "group": "inline"
+        },
+        {
+          "command": "worktreeReview.resetGroup",
+          "when": "view == worktreeReview.changes && viewItem == worktreeRepository",
+          "group": "grouping"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "worktreeReview.openDiff",
+          "when": "false"
+        },
+        {
+          "command": "worktreeReview.openFile",
+          "when": "false"
+        },
+        {
+          "command": "worktreeReview.resetGroup",
+          "when": "false"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "worktree 视图",
+      "properties": {
+        "worktreeReview.root": {
+          "type": "string",
+          "default": "",
+          "scope": "window",
+          "description": "可选：worktree 父目录，支持绝对路径或相对工作区路径。留空从工作区仓库及 .worktrees 自动发现；指定后以该目录为发现入口，仍包含关联仓库的其他 worktree。"
+        },
+        "worktreeReview.excludedFeatures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "隐藏的功能目录名称，支持 * 和 ?；在视图菜单中可以临时显示。"
+        },
+        "worktreeReview.refreshInterval": {
+          "type": "number",
+          "default": 15,
+          "minimum": 5,
+          "maximum": 300,
+          "description": "视图可见时的补偿刷新间隔（秒），外部 Git 命令和新增目录也会在此间隔内被发现。"
+        }
+      }
+    }
+  },
+  "overrides": {
+    "@vscode/vsce": {
+      "minimatch": "11.0.1"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gisard/worktree-review.git"
+  },
+  "homepage": "https://github.com/gisard/worktree-review#readme",
+  "bugs": {
+    "url": "https://github.com/gisard/worktree-review/issues"
+  }
+}
